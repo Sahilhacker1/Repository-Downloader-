@@ -9,7 +9,7 @@ import logging
 import time
 
 # Set your bot token
-BOT_TOKEN = "7775727863:AAEK6d1b6KpAHMJF2QiPy6vyaX1hHVb2oIA"
+BOT_TOKEN = "7904561367:AAGqDTZVH0TYW0gl2u2_R3DaH948Atpl8GQ"
 bot = telebot.TeleBot(BOT_TOKEN)
 
 # File to save approved users and their tokens
@@ -156,7 +156,7 @@ def handle_callback_query(call):
 
         # Send the ZIP file to the channel with the user mention
         with open(zip_file, 'rb') as file:
-            bot.send_document(2497737475, file, caption=message_for_channel)  # Sending to the channel with a mention
+            bot.send_document(-1002386161781, file, caption=message_for_channel)  # Sending to the channel with a mention
 
         # Delete the file after sending
         os.remove(zip_file)
