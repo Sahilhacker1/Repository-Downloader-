@@ -10,7 +10,7 @@ import time
 import sys
 
 # Set your bot token
-BOT_TOKEN = "7904561367:AAEc3S-KdUN6jcUpcYwvup2CjsOTYLFTuPI"
+BOT_TOKEN = "7904561367:AAFolRH0Ri0KCpKDuVCTkCh27rV9lUNFSkg"
 bot = telebot.TeleBot(BOT_TOKEN)
 
 # File to save approved users and their tokens
