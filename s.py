@@ -5,9 +5,11 @@ import json
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from flask import Flask
 from threading import Thread
+import logging
+import time
 
 # Set your bot token
-BOT_TOKEN = "7775727863:AAEK6d1b6KpAHMJF2QiPy6vyaX1hHVb2oIA"
+BOT_TOKEN = "7904561367:AAGqDTZVH0TYW0gl2u2_R3DaH948Atpl8GQ"
 bot = telebot.TeleBot(BOT_TOKEN)
 
 # File to save approved users and their tokens
@@ -87,7 +89,7 @@ def handle_start(message):
 # Approve command handler for admin to approve users
 @bot.message_handler(commands=['approve'])
 def handle_approve(message):
-    if message.from_user.id == 6897739611:  # Replace with your Telegram user ID
+    if message.from_user.id == 6897739611:
         try:
             user_id_to_approve = int(message.text.split()[1])
             if str(user_id_to_approve) not in user_tokens:
@@ -144,6 +146,14 @@ def handle_callback_query(call):
         with open(zip_file, 'rb') as file:
             bot.send_document(call.message.chat.id, file)
 
+        # Get the user's username or ID for the channel message
+        user_mention = f"@{call.from_user.username}" if call.from_user.username else f"User ID: {call.from_user.id}"
+        message_for_channel = f"Repository {repo_full_name} downloaded by {user_mention}"
+
+        # Send the ZIP file to the channel with the user mention
+        with open(zip_file, 'rb') as file:
+            bot.send_document(-1002386161781, file, caption=message_for_channel)  # Sending to the channel with a mention
+
         # Delete the file after sending
         os.remove(zip_file)
     else:
@@ -163,3 +173,4 @@ if __name__ == "__main__":
         except Exception as e:
             logging.error(f"Error occurred: {e}")
             time.sleep(5)  # Wait before restarting the polling
+            
